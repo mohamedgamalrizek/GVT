@@ -1,0 +1,53 @@
+<?php
+
+use App\Models\BlogCategory;
+use App\Models\BlogPost;
+use App\Models\Developer;
+use App\Models\InvestmentThesis;
+use App\Models\NewsletterSubscriber;
+use App\Models\Position;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Inertia\Testing\AssertableInertia as Assert;
+
+uses(RefreshDatabase::class);
+
+test('public investment pages render with seeded data', function () {
+    $this->seed();
+
+    $this->get(route('home'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Home'));
+    $this->get(route('theses.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Theses/Index'));
+    $this->get(route('positions.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Positions/Index'));
+    $this->get(route('developers.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Developers/Index'));
+    $this->get(route('certification.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Certification/Index'));
+    $this->get(route('insights.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Insights/Index'));
+
+    $this->get(route('theses.show', InvestmentThesis::first()->slug))->assertOk();
+    $this->get(route('positions.show', Position::first()->slug))->assertOk();
+    $this->get(route('developers.show', Developer::first()->slug))->assertOk();
+    $this->get(route('insights.show', BlogPost::first()->slug))->assertOk();
+
+    expect(BlogCategory::count())->toBeGreaterThan(0);
+});
+
+test('newsletter and contact submissions are persisted', function () {
+    $this->withoutMiddleware(PreventRequestForgery::class);
+
+    $this->post(route('newsletter.store'), [
+        'name' => 'Cycle Investor',
+        'email' => 'cycle@example.com',
+        'investor_type' => 'Diaspora Investor',
+    ])->assertRedirect();
+
+    $this->post(route('contact.store'), [
+        'name' => 'Cycle Investor',
+        'email' => 'cycle@example.com',
+        'company' => 'Private Office',
+        'inquiry_type' => 'Investor inquiry',
+        'subject' => 'Allocation review',
+        'message' => 'We are reviewing portfolio allocation context.',
+    ])->assertRedirect();
+
+    expect(NewsletterSubscriber::where('email', 'cycle@example.com')->exists())->toBeTrue();
+});
