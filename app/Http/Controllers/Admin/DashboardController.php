@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\ContactMessage;
+use App\Models\CrmClient;
 use App\Models\Developer;
 use App\Models\InvestmentThesis;
 use App\Models\NewsletterSubscriber;
@@ -17,7 +18,21 @@ class DashboardController extends Controller
 {
     public function __invoke(): Response
     {
-        abort_unless(auth()->user()?->can('view dashboard'), 403);
+        $user = auth()->user();
+        abort_unless($user?->can('view dashboard'), 403);
+
+        if (! $user->can('manage crm') && $user->can('manage assigned clients')) {
+            return Inertia::render('admin/Dashboard', [
+                'stats' => [
+                    'assignedClients' => CrmClient::query()->where('assigned_to_user_id', $user->id)->count(),
+                    'openClients' => CrmClient::query()->where('assigned_to_user_id', $user->id)->whereNotIn('status', ['won', 'lost'])->count(),
+                    'wonClients' => CrmClient::query()->where('assigned_to_user_id', $user->id)->where('status', 'won')->count(),
+                    'followUps' => CrmClient::query()->where('assigned_to_user_id', $user->id)->whereNotNull('next_follow_up_at')->where('next_follow_up_at', '<=', now()->addDays(7))->count(),
+                ],
+                'messages' => [],
+                'positions' => [],
+            ]);
+        }
 
         return Inertia::render('admin/Dashboard', [
             'stats' => [

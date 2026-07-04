@@ -44,7 +44,15 @@ class PublicSiteController extends Controller
 
     public function about(): Response
     {
-        return Inertia::render('public/About');
+        return Inertia::render('public/About', Cache::remember('public.about', 300, fn (): array => [
+            'aboutSections' => Page::query()
+                ->with('sections')
+                ->where('slug', 'about')
+                ->first()
+                ?->sections
+                ->keyBy('key')
+                ->toArray() ?? [],
+        ]));
     }
 
     public function methodology(): Response

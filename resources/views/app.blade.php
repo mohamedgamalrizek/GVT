@@ -30,15 +30,22 @@
             }
         </style>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @php($siteSettings = rescue(fn () => \App\Models\WebsiteSetting::site(), \App\Models\WebsiteSetting::defaults(), false))
+        @php($favicon = $siteSettings['favicon_path'] ? '/storage/'.$siteSettings['favicon_path'] : '/favicon.ico')
+
+        <meta name="description" content="{{ $siteSettings['default_seo_description'] }}">
+        <meta name="keywords" content="{{ $siteSettings['default_seo_keywords'] }}">
+        <meta property="og:site_name" content="{{ $siteSettings['brand_name'] }}">
+        <meta property="og:title" content="{{ $siteSettings['default_seo_title'] }}">
+        <meta property="og:description" content="{{ $siteSettings['default_seo_description'] }}">
+        <link rel="icon" href="{{ $favicon }}" sizes="any">
+        <link rel="apple-touch-icon" href="{{ $favicon }}">
 
         @fonts
 
         @vite(['resources/css/app.css', 'resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ $siteSettings['default_seo_title'] }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

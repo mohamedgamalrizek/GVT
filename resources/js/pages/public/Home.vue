@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PublicHeader from '@/components/public/PublicHeader.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { BarChart3, ChevronLeft, ChevronRight, CircleDollarSign, Compass, Globe2, HelpCircle, Landmark, LineChart, LockKeyhole, Search, ShieldCheck, Target, Users } from '@lucide/vue';
 import { computed } from 'vue';
 
@@ -12,6 +12,8 @@ const props = defineProps<{
     latestInsights: any[];
 }>();
 
+const page = usePage();
+const settings = computed(() => page.props.siteSettings);
 const section = (key: string, fallback: any) => props.homeSections[key] ?? fallback;
 
 const hero = computed(() =>
@@ -21,6 +23,7 @@ const hero = computed(() =>
         content: { primary_cta: 'Explore Theses', secondary_cta: 'View Positions' },
     }),
 );
+const heroImage = computed(() => imageUrl(hero.value.content?.image_path));
 
 const approach = computed(() =>
     section('approach', {
@@ -90,13 +93,20 @@ function sparklinePoints(series: number[]) {
 </script>
 
 <template>
-    <Head title="Global Value Thesis" />
+    <Head :title="settings.default_seo_title">
+        <meta name="description" :content="settings.default_seo_description" />
+        <meta name="keywords" :content="settings.default_seo_keywords || ''" />
+        <meta property="og:title" :content="settings.default_seo_title" />
+        <meta property="og:description" :content="settings.default_seo_description" />
+    </Head>
 
     <div class="min-h-screen bg-[#050505] text-white">
         <section class="relative min-h-[700px] overflow-hidden border-b border-[#1a1712]">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(203,158,82,0.18),transparent_28%),linear-gradient(90deg,#050505_0%,#070707_42%,#101010_100%)]" />
-            <div class="absolute right-[-12%] top-16 hidden h-[560px] w-[760px] rounded-full border border-[#b99251]/20 bg-[radial-gradient(circle_at_45%_45%,rgba(255,255,255,0.12),transparent_3%,transparent_8%,rgba(255,255,255,0.08)_9%,transparent_10%),radial-gradient(circle_at_60%_38%,rgba(203,158,82,0.45),transparent_1%,transparent_2%),linear-gradient(120deg,rgba(255,255,255,0.12),rgba(255,255,255,0.01)_45%,transparent)] opacity-70 blur-[0.2px] lg:block" />
-            <div class="absolute right-0 top-20 hidden h-[500px] w-[720px] bg-[linear-gradient(23deg,transparent_48%,rgba(203,158,82,0.18)_49%,transparent_50%),linear-gradient(132deg,transparent_48%,rgba(255,255,255,0.12)_49%,transparent_50%)] bg-[length:110px_110px] opacity-35 lg:block" />
+            <img v-if="heroImage" :src="heroImage" :alt="hero.heading" class="absolute inset-y-0 right-0 hidden h-full w-[64%] object-cover opacity-45 lg:block" />
+            <div v-if="heroImage" class="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/80 to-[#050505]/25" />
+            <div v-if="!heroImage" class="absolute right-[-12%] top-16 hidden h-[560px] w-[760px] rounded-full border border-[#b99251]/20 bg-[radial-gradient(circle_at_45%_45%,rgba(255,255,255,0.12),transparent_3%,transparent_8%,rgba(255,255,255,0.08)_9%,transparent_10%),radial-gradient(circle_at_60%_38%,rgba(203,158,82,0.45),transparent_1%,transparent_2%),linear-gradient(120deg,rgba(255,255,255,0.12),rgba(255,255,255,0.01)_45%,transparent)] opacity-70 blur-[0.2px] lg:block" />
+            <div v-if="!heroImage" class="absolute right-0 top-20 hidden h-[500px] w-[720px] bg-[linear-gradient(23deg,transparent_48%,rgba(203,158,82,0.18)_49%,transparent_50%),linear-gradient(132deg,transparent_48%,rgba(255,255,255,0.12)_49%,transparent_50%)] bg-[length:110px_110px] opacity-35 lg:block" />
             <div class="relative">
                 <PublicHeader overlay />
             </div>
@@ -276,12 +286,17 @@ function sparklinePoints(series: number[]) {
         <footer class="border-t border-[#1a1712] bg-[#070707] px-6 py-10">
             <div class="mx-auto grid max-w-7xl gap-8 text-xs text-white/48 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
                 <div>
-                    <p class="text-lg font-semibold uppercase tracking-[0.14em] text-white">Global Value Thesis</p>
+                    <p class="text-lg font-semibold uppercase tracking-[0.14em] text-white">{{ settings.brand_name }}</p>
                     <p class="mt-4 max-w-xs leading-6">A structured view on value for investors who think in cycles, not launches.</p>
                 </div>
-                <div><p class="mb-3 text-[#c79b55]">Company</p><p>About Us</p><p class="mt-2">Our Approach</p><p class="mt-2">Careers</p></div>
+                <div><p class="mb-3 text-[#c79b55]">Company</p><p>About Us</p><p class="mt-2">Our Approach</p></div>
                 <div><p class="mb-3 text-[#c79b55]">Solutions</p><p>Investment Theses</p><p class="mt-2">Property Advisory</p><p class="mt-2">Market Intelligence</p></div>
-                <div><p class="mb-3 text-[#c79b55]">Contact</p><p>research@gvt.test</p><p class="mt-2">+20 100 000 0000</p></div>
+                <div>
+                    <p class="mb-3 text-[#c79b55]">Contact</p>
+                    <p>{{ settings.contact_email }}</p>
+                    <p v-if="settings.contact_phone" class="mt-2">{{ settings.contact_phone }}</p>
+                    <p v-if="settings.contact_address" class="mt-2">{{ settings.contact_address }}</p>
+                </div>
             </div>
         </footer>
     </div>

@@ -54,29 +54,29 @@ function samplePayload(resource: string) {
 
 <template>
     <Head :title="title" />
-    <div class="grid gap-6 p-4">
-        <section class="flex flex-col justify-between gap-4 rounded-lg border bg-card p-6 md:flex-row md:items-center">
+    <div class="grid min-h-full gap-6 bg-[#050505] p-4 text-white md:p-6">
+        <section class="flex flex-col justify-between gap-4 border border-[#1a1712] bg-[#0b0b0b] p-6 md:flex-row md:items-center">
             <div>
-                <p class="text-sm text-muted-foreground">Admin resource</p>
-                <h1 class="mt-1 text-3xl font-semibold">{{ title }}</h1>
+                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[#c79b55]">Admin resource</p>
+                <h1 class="mt-3 text-3xl font-light uppercase tracking-[0.08em]">{{ title }}</h1>
             </div>
-            <button class="rounded-md border px-4 py-2 text-sm" type="button" @click="createNew">New record</button>
+            <button class="border border-[#c79b55] px-4 py-2 text-sm text-[#c79b55]" type="button" @click="createNew">New record</button>
         </section>
 
-        <section class="overflow-hidden rounded-lg border bg-card">
+        <section class="overflow-hidden border border-[#1a1712] bg-[#0b0b0b]">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-muted/50 text-muted-foreground">
+                    <thead class="bg-[#111] text-white/50">
                         <tr>
                             <th v-for="key in keys" :key="key" class="px-4 py-3 font-medium">{{ key }}</th>
                             <th class="px-4 py-3 font-medium">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in rows" :key="item.id" class="border-t">
+                        <tr v-for="item in rows" :key="item.id" class="border-t border-white/10">
                             <td v-for="key in keys" :key="key" class="max-w-64 truncate px-4 py-3">{{ typeof item[key] === 'object' ? JSON.stringify(item[key]) : item[key] }}</td>
                             <td class="flex gap-2 px-4 py-3">
-                                <button class="text-primary underline" type="button" @click="edit(item)">Edit</button>
+                                <button class="text-[#c79b55] underline" type="button" @click="edit(item)">Edit</button>
                                 <Form :action="`/admin/${resource}/${item.id}`" method="delete">
                                     <button class="text-destructive underline" type="submit">Delete</button>
                                 </Form>
@@ -87,7 +87,7 @@ function samplePayload(resource: string) {
             </div>
         </section>
 
-        <section class="rounded-lg border bg-card p-6">
+        <section class="border border-[#1a1712] bg-[#0b0b0b] p-6">
             <h2 class="text-xl font-semibold">{{ selected ? 'Edit record' : 'Create record' }}</h2>
             <div v-if="resource === 'theses' && selected" class="mt-4 rounded-md border bg-muted/20 p-4">
                 <p class="text-sm font-medium">Featured research image</p>
@@ -99,9 +99,9 @@ function samplePayload(resource: string) {
                 </Form>
             </div>
             <Form :action="selected ? `/admin/${resource}/${selected.id}` : `/admin/${resource}`" :method="selected ? 'put' : 'post'" class="mt-4 grid gap-4">
-                <textarea name="payload" :value="payload" rows="14" class="w-full rounded-md border bg-background p-4 font-mono text-sm" />
-                <p class="text-sm text-muted-foreground">Enter JSON for the record payload. Relationships use IDs from existing developers, theses, categories, and users.</p>
-                <button class="w-fit rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground">Save record</button>
+                <textarea name="payload" :value="payload" rows="14" class="w-full border border-white/10 bg-[#111] p-4 font-mono text-sm text-white" />
+                <p class="text-sm text-white/50">Enter JSON for the record payload. Relationships use IDs from existing developers, theses, categories, and users.</p>
+                <button class="w-fit bg-[#c79b55] px-4 py-2 text-sm text-black">Save record</button>
             </Form>
         </section>
 

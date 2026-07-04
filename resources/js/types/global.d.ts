@@ -19,6 +19,22 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            siteSettings: {
+                brand_name: string;
+                short_name: string;
+                slogan: string;
+                logo_path: string | null;
+                favicon_path: string | null;
+                contact_email: string;
+                contact_phone: string | null;
+                contact_address: string | null;
+                linkedin_url: string | null;
+                x_url: string | null;
+                instagram_url: string | null;
+                default_seo_title: string;
+                default_seo_description: string;
+                default_seo_keywords: string | null;
+            };
             [key: string]: unknown;
         };
     }

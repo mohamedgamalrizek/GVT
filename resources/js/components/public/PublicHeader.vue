@@ -9,6 +9,7 @@ defineProps<{
 
 const open = ref(false);
 const page = usePage();
+const settings = computed(() => page.props.siteSettings);
 
 const nav = [
     { label: 'Home', href: '/', match: ['/'] },
@@ -32,6 +33,10 @@ function isActive(item: { href: string; match: string[] }) {
 
     return item.match.some((path) => currentPath.value === path || currentPath.value.startsWith(`${path}/`));
 }
+
+const logoUrl = computed(() => (settings.value.logo_path ? `/storage/${settings.value.logo_path}` : null));
+const brandFirstLine = computed(() => settings.value.brand_name.split(' ').slice(0, 2).join(' '));
+const brandSecondLine = computed(() => settings.value.brand_name.split(' ').slice(2).join(' ') || settings.value.short_name);
 </script>
 
 <template>
@@ -41,12 +46,13 @@ function isActive(item: { href: string; match: string[] }) {
     >
         <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 text-[11px] uppercase tracking-[0.18em] text-white/60">
             <Link href="/" class="flex items-center gap-3">
-                <div class="flex h-8 items-end gap-1 text-[#c79b55]">
+                <img v-if="logoUrl" :src="logoUrl" :alt="settings.brand_name" class="h-9 w-auto max-w-[160px] object-contain" />
+                <div v-else class="flex h-8 items-end gap-1 text-[#c79b55]">
                     <span class="h-5 w-1.5 skew-x-[-12deg] bg-[#c79b55]" />
                     <span class="h-7 w-1.5 skew-x-[-12deg] bg-[#c79b55]" />
                     <span class="h-6 w-1.5 skew-x-[-12deg] bg-[#c79b55]" />
                 </div>
-                <span class="font-semibold leading-tight text-white">Global<br />Value Thesis</span>
+                <span v-if="!logoUrl" class="font-semibold leading-tight text-white">{{ brandFirstLine }}<br />{{ brandSecondLine }}</span>
             </Link>
 
             <nav class="hidden items-center gap-10 lg:flex">

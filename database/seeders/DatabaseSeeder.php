@@ -29,7 +29,8 @@ class DatabaseSeeder extends Seeder
         $permissions = [
             'view dashboard', 'manage users', 'manage roles', 'manage pages', 'manage theses',
             'manage positions', 'manage developers', 'manage certifications', 'manage blog',
-            'manage settings', 'view inquiries', 'export subscribers',
+            'manage settings', 'view inquiries', 'export subscribers', 'manage crm',
+            'manage assigned clients',
         ];
 
         collect($permissions)->each(fn (string $permission) => Permission::findOrCreate($permission));
@@ -39,6 +40,7 @@ class DatabaseSeeder extends Seeder
             'Admin' => array_diff($permissions, ['manage roles']),
             'Editor' => ['view dashboard', 'manage pages', 'manage blog', 'manage theses'],
             'Analyst' => ['view dashboard', 'manage theses', 'manage positions', 'manage developers', 'manage certifications'],
+            'Sales' => ['view dashboard', 'manage assigned clients'],
             'Viewer' => ['view dashboard'],
         ];
 
@@ -50,6 +52,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Nadine Farouk', 'email' => 'admin@gvt.test', 'role' => 'Super Admin'],
             ['name' => 'Omar Selim', 'email' => 'analyst@gvt.test', 'role' => 'Analyst'],
             ['name' => 'Maya Khalil', 'email' => 'editor@gvt.test', 'role' => 'Editor'],
+            ['name' => 'Youssef Adel', 'email' => 'sales@gvt.test', 'role' => 'Sales'],
         ])->map(function (array $user): User {
             $model = User::updateOrCreate(
                 ['email' => $user['email']],
@@ -226,6 +229,12 @@ class DatabaseSeeder extends Seeder
             'contact' => ['email' => 'research@gvt.test', 'phone' => '+20 100 000 0000'],
         ]]);
 
-        $this->call(HomePageSeeder::class);
+        WebsiteSetting::updateOrCreate(['key' => 'site'], ['value' => WebsiteSetting::defaults()]);
+
+        $this->call([
+            HomePageSeeder::class,
+            AboutPageSeeder::class,
+            CrmSeeder::class,
+        ]);
     }
 }
