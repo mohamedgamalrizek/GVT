@@ -19,6 +19,7 @@ class SaveResourceRequest extends FormRequest
     {
         return [
             'payload' => ['required'],
+            'featured_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 }

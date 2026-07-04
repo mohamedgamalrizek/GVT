@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::post('/admin/page-sections/{section}/image', [PageSectionController::class, 'uploadImage'])->name('admin.page-sections.image');
     Route::get('/admin/{resource}', [ResourceController::class, 'index'])->name('admin.resources.index');
     Route::post('/admin/{resource}', [ResourceController::class, 'store'])->name('admin.resources.store');
+    Route::post('/admin/{resource}/{id}', [ResourceController::class, 'update'])->name('admin.resources.update.post');
     Route::put('/admin/{resource}/{id}', [ResourceController::class, 'update'])->name('admin.resources.update');
     Route::delete('/admin/{resource}/{id}', [ResourceController::class, 'destroy'])->name('admin.resources.destroy');
 });
