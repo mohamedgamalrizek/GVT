@@ -42,12 +42,13 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::post('/admin/theses/{thesis}/featured-image', [ResourceController::class, 'uploadThesisImage'])->name('admin.theses.featured-image');
     Route::get('/admin/settings', [SettingsController::class, 'edit'])->name('admin.settings.edit');
     Route::post('/admin/settings', [SettingsController::class, 'update'])->name('admin.settings.store');
+    Route::redirect('/admin/certifications', '/admin/page-sections?page=certification')->name('admin.certifications.page');
     Route::get('/admin/page-sections', [PageSectionController::class, 'index'])->name('admin.page-sections.index');
     Route::put('/admin/page-sections/{section}', [PageSectionController::class, 'update'])->name('admin.page-sections.update');
     Route::post('/admin/page-sections/{section}/image', [PageSectionController::class, 'uploadImage'])->name('admin.page-sections.image');
+    Route::redirect('/admin/newsletter', '/admin/contact-messages')->name('admin.newsletter.redirect');
     Route::get('/admin/{resource}', [ResourceController::class, 'index'])->name('admin.resources.index');
     Route::post('/admin/{resource}', [ResourceController::class, 'store'])->name('admin.resources.store');
-    Route::post('/admin/{resource}/{id}', [ResourceController::class, 'update'])->name('admin.resources.update.post');
     Route::put('/admin/{resource}/{id}', [ResourceController::class, 'update'])->name('admin.resources.update');
     Route::delete('/admin/{resource}/{id}', [ResourceController::class, 'destroy'])->name('admin.resources.destroy');
 });

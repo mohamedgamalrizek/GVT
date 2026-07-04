@@ -196,6 +196,10 @@ function updateImage(event: Event) {
     form.featured_image = (event.target as HTMLInputElement).files?.[0] ?? null;
 }
 
+function imagePreviewPath() {
+    return selected.value?.featured_image_path ?? selected.value?.logo_path ?? null;
+}
+
 function dateTimeInput(value: string | null) {
     return value ? value.slice(0, 16) : '';
 }
@@ -312,7 +316,7 @@ createNew();
                     </select>
 
                     <div v-else-if="field.type === 'image'" class="grid gap-3">
-                        <img v-if="selected?.featured_image_path" :src="`/storage/${selected.featured_image_path}`" :alt="selected.title" class="h-44 w-full max-w-lg border border-white/10 object-cover" />
+                        <img v-if="imagePreviewPath()" :src="`/storage/${imagePreviewPath()}`" :alt="selected?.title || selected?.name || field.label" class="h-44 w-full max-w-lg border border-white/10 object-cover" />
                         <input
                             type="file"
                             accept="image/png,image/jpeg,image/webp"

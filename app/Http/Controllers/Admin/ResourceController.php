@@ -49,7 +49,7 @@ class ResourceController extends Controller
         'categories' => ['model' => BlogCategory::class, 'permission' => 'manage blog', 'title' => 'Categories'],
         'tags' => ['model' => BlogTag::class, 'permission' => 'manage blog', 'title' => 'Tags'],
         'newsletter' => ['model' => NewsletterSubscriber::class, 'permission' => 'export subscribers', 'title' => 'Newsletter Subscribers'],
-        'contact-messages' => ['model' => ContactMessage::class, 'permission' => 'view inquiries', 'title' => 'Contact Messages'],
+        'contact-messages' => ['model' => ContactMessage::class, 'permission' => 'view inquiries', 'title' => 'Contact'],
         'users' => ['model' => User::class, 'permission' => 'manage users', 'title' => 'Users', 'relations' => ['roles:id,name']],
         'roles' => ['model' => Role::class, 'permission' => 'manage roles', 'title' => 'Roles', 'relations' => ['permissions:id,name']],
         'settings' => ['model' => WebsiteSetting::class, 'permission' => 'manage settings', 'title' => 'Website Settings'],
@@ -232,17 +232,25 @@ class ResourceController extends Controller
             return;
         }
 
-        if (! $model instanceof BlogPost || $resource !== 'blog') {
-            return;
+        if ($model instanceof BlogPost && $resource === 'blog') {
+            if ($model->featured_image_path) {
+                Storage::disk('public')->delete($model->featured_image_path);
+            }
+
+            $model->update([
+                'featured_image_path' => $request->file('featured_image')->store('blog', 'public'),
+            ]);
         }
 
-        if ($model->featured_image_path) {
-            Storage::disk('public')->delete($model->featured_image_path);
-        }
+        if ($model instanceof Developer && $resource === 'developers') {
+            if ($model->logo_path) {
+                Storage::disk('public')->delete($model->logo_path);
+            }
 
-        $model->update([
-            'featured_image_path' => $request->file('featured_image')->store('blog', 'public'),
-        ]);
+            $model->update([
+                'logo_path' => $request->file('featured_image')->store('developers', 'public'),
+            ]);
+        }
     }
 
     /**
@@ -281,6 +289,7 @@ class ResourceController extends Controller
 
         return match ($resource) {
             'developers' => [
+                $this->field('developer_image', 'Developer image', 'image', help: 'Shown on certification and developer cards.'),
                 $this->field('name', 'Developer name', 'text', required: true),
                 $this->field('slug', 'Slug', 'text', help: 'Leave empty to generate automatically.'),
                 $this->field('website_url', 'Website URL', 'url'),

@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UploadPageSectionImageRequest;
 use App\Models\Page;
 use App\Models\PageSection;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -15,11 +16,12 @@ use Inertia\Response;
 
 class PageSectionController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         abort_unless(auth()->user()?->can('manage pages'), 403);
 
         return Inertia::render('admin/PageSections', [
+            'selectedPageSlug' => $request->string('page')->toString(),
             'pages' => Page::query()
                 ->with('sections')
                 ->orderByRaw("case when slug = 'home' then 0 else 1 end")

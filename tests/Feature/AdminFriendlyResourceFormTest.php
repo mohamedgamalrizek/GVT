@@ -2,6 +2,7 @@
 
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
+use App\Models\Developer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -16,7 +17,9 @@ beforeEach(function (): void {
     $this->withoutVite();
 
     Permission::findOrCreate('manage blog');
+    Permission::findOrCreate('manage developers');
     Role::findOrCreate('Editor')->syncPermissions(['manage blog']);
+    Role::findOrCreate('Admin')->syncPermissions(['manage developers']);
 });
 
 test('admin resource pages expose field definitions instead of requiring json editing', function () {
@@ -110,5 +113,46 @@ test('blog posts can be created with a featured image from admin forms', functio
         ->assertInertia(fn (Assert $page) => $page
             ->component('public/Insights/Index')
             ->where('posts.data.0.featured_image_path', $post->featured_image_path)
+        );
+});
+
+test('developers can be created with an image that appears on certification cards', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $user->assignRole('Admin');
+
+    $this->actingAs($user)
+        ->post(route('admin.resources.store', 'developers'), [
+            'payload' => [
+                'name' => 'Image Certified Developer',
+                'slug' => '',
+                'website_url' => null,
+                'headquarters' => 'Cairo, Egypt',
+                'founded_year' => 2014,
+                'certification_status' => 'certified',
+                'rating_score' => 91,
+                'summary' => 'Developer with visible certification profile.',
+                'evaluation_summary' => 'Evaluation summary shown on certification cards.',
+                'strengths' => ['Delivery discipline'],
+                'risk_flags' => ['Monitor absorption'],
+                'certified_at' => now()->format('Y-m-d H:i:s'),
+                'published_at' => now()->format('Y-m-d H:i:s'),
+            ],
+            'featured_image' => UploadedFile::fake()->image('developer.jpg', 900, 900),
+        ])
+        ->assertRedirect();
+
+    $developer = Developer::where('name', 'Image Certified Developer')->firstOrFail();
+
+    expect($developer->logo_path)->toStartWith('developers/');
+    Storage::disk('public')->assertExists($developer->logo_path);
+
+    $this->actingAs($user)
+        ->get(route('certification.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('public/Certification/Index')
+            ->where('developers.0.logo_path', $developer->logo_path)
         );
 });

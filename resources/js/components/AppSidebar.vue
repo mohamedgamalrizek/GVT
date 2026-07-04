@@ -69,10 +69,10 @@ const mainNavItems: NavItem[] = [
         permission: 'manage blog',
     },
     {
-        title: 'Newsletter',
-        href: '/admin/newsletter',
+        title: 'Contact',
+        href: '/admin/contact-messages',
         icon: Mail,
-        permission: 'export subscribers',
+        permission: 'view inquiries',
     },
     {
         title: 'Users',

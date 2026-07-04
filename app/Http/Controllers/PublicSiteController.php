@@ -143,6 +143,13 @@ class PublicSiteController extends Controller
     public function certification(): Response
     {
         return Inertia::render('public/Certification/Index', [
+            'certificationSections' => Page::query()
+                ->with('sections')
+                ->where('slug', 'certification')
+                ->first()
+                ?->sections
+                ->keyBy('key')
+                ->toArray() ?? [],
             'statuses' => Developer::query()->selectRaw('certification_status, count(*) as aggregate')->groupBy('certification_status')->pluck('aggregate', 'certification_status'),
             'developers' => Developer::query()->with('certificationHistories')->latest('rating_score')->limit(8)->get(),
         ]);

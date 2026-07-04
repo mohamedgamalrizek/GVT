@@ -3,6 +3,7 @@ import { Head, Form } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{
+    selectedPageSlug?: string;
     pages: Array<{
         id: number;
         title: string;
@@ -25,7 +26,8 @@ defineOptions({
     },
 });
 
-const selectedPageId = ref(props.pages[0]?.id ?? null);
+const initialPage = props.pages.find((page) => page.slug === props.selectedPageSlug) ?? props.pages[0];
+const selectedPageId = ref(initialPage?.id ?? null);
 const selectedPage = computed(() => props.pages.find((page) => page.id === selectedPageId.value) ?? props.pages[0]);
 const openSection = ref<number | null>(selectedPage.value?.sections?.[0]?.id ?? null);
 

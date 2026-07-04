@@ -234,6 +234,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             HomePageSeeder::class,
             AboutPageSeeder::class,
+            CertificationPageSeeder::class,
             CrmSeeder::class,
         ]);
     }

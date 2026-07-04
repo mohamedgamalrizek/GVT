@@ -2,11 +2,13 @@
 
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
+use App\Models\ContactMessage;
 use App\Models\Developer;
 use App\Models\InvestmentThesis;
 use App\Models\NewsletterSubscriber;
 use App\Models\Page;
 use App\Models\Position;
+use App\Models\User;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -20,7 +22,10 @@ test('public investment pages render with seeded data', function () {
     $this->get(route('theses.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Theses/Index'));
     $this->get(route('positions.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Positions/Index'));
     $this->get(route('developers.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Developers/Index'));
-    $this->get(route('certification.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Certification/Index'));
+    $this->get(route('certification.index'))->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('public/Certification/Index')
+        ->has('certificationSections.hero')
+    );
     $this->get(route('insights.index'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('public/Insights/Index'));
     $this->get(route('about'))->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('public/About')
@@ -56,4 +61,21 @@ test('newsletter and contact submissions are persisted', function () {
     ])->assertRedirect();
 
     expect(NewsletterSubscriber::where('email', 'cycle@example.com')->exists())->toBeTrue();
+    expect(ContactMessage::where('email', 'cycle@example.com')->exists())->toBeTrue();
+});
+
+test('legacy admin newsletter link redirects to contact inbox', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get('/admin/newsletter')
+        ->assertRedirect('/admin/contact-messages');
+});
+
+test('admin certifications link opens certification page editor', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get('/admin/certifications')
+        ->assertRedirect('/admin/page-sections?page=certification');
 });
